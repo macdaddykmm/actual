@@ -147,6 +147,36 @@ describe('buildBehaviorGroups', () => {
     expect(categoryGroups[2].categories?.[0].hidden).toBeUndefined();
   });
 
+  it('uses the category group behavior as a default', () => {
+    const behaviors = new Map<string, CategoryBehavior>([
+      ['housing', 'fixed'],
+      ['repairs', 'irregular'],
+    ]);
+
+    const result = buildBehaviorGroups(categoryGroups, behaviors, labels);
+    const fixed = result.find(group => group.id === behaviorGroupId('fixed'));
+    const irregular = result.find(
+      group => group.id === behaviorGroupId('irregular'),
+    );
+
+    expect(fixed?.categories?.map(c => c.id)).toEqual(['mortgage']);
+    expect(irregular?.categories?.map(c => c.id)).toEqual(['repairs']);
+  });
+
+  it('ignores a behavior set on the income group', () => {
+    const result = buildBehaviorGroups(
+      categoryGroups,
+      new Map<string, CategoryBehavior>([['income', 'fixed']]),
+      labels,
+    );
+    expect(result.find(group => group.id === 'income')?.categories).toEqual(
+      categoryGroups[3].categories,
+    );
+    expect(
+      result.find(group => group.id === behaviorGroupId('fixed')),
+    ).toBeUndefined();
+  });
+
   it('omits behaviors with no categories', () => {
     const result = buildBehaviorGroups(categoryGroups, new Map(), labels);
     expect(result.map(group => group.id)).toEqual([

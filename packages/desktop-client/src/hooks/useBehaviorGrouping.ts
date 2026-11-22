@@ -21,11 +21,12 @@ import { useLocalPref } from './useLocalPref';
 import { useQuery } from './useQuery';
 
 /**
- * Live map of category id to the behavior declared in its notes (`#type ...`).
- * Only notes containing `#type` are loaded.
+ * Live map of note id (a category or category group id) to the behavior
+ * declared in its notes (`#type ...`). Only notes containing `#type` are
+ * loaded.
  */
-export function useCategoryBehaviors(): ReadonlyMap<
-  CategoryEntity['id'],
+export function useNoteBehaviors(): ReadonlyMap<
+  CategoryEntity['id'] | CategoryGroupEntity['id'],
   CategoryBehavior
 > {
   const { data } = useQuery<Pick<NoteEntity, 'id' | 'note'>>(
@@ -37,7 +38,7 @@ export function useCategoryBehaviors(): ReadonlyMap<
   );
 
   return useMemo(() => {
-    const behaviors = new Map<CategoryEntity['id'], CategoryBehavior>();
+    const behaviors = new Map<string, CategoryBehavior>();
     for (const { id, note } of data ?? []) {
       const behavior = parseCategoryBehavior(note);
       if (behavior) {
@@ -50,14 +51,15 @@ export function useCategoryBehaviors(): ReadonlyMap<
 
 /**
  * Returns the category groups to display on the budget page. In behavior
- * view these are virtual groups built from `#type` notes; otherwise they are
- * the user's own category groups, unchanged.
+ * view these are virtual groups built from `#type` notes on categories and
+ * category groups; otherwise they are the user's own category groups,
+ * unchanged.
  */
 export function useBehaviorGrouping(categoryGroups: CategoryGroupEntity[]) {
   const { t } = useTranslation();
   const [groupBy = 'categoryGroup'] = useLocalPref('budget.groupBy');
   const isBehaviorView = groupBy === 'behavior';
-  const behaviors = useCategoryBehaviors();
+  const behaviors = useNoteBehaviors();
 
   const displayGroups = useMemo(() => {
     if (!isBehaviorView) {

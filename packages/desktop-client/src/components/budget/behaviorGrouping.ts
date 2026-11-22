@@ -9,6 +9,8 @@ import type {
  * their money behaves (fixed bills, everyday variable spending, irregular or
  * seasonal costs, ...). A category opts in by having a line like
  * `#type irregular` in its notes, so no database changes are needed.
+ * A `#type` line in a category group's notes sets the default for all
+ * categories in that group; a category's own `#type` overrides it.
  */
 
 export const CATEGORY_BEHAVIORS = [
@@ -89,14 +91,18 @@ export function isBehaviorGroup(
  * - Expense categories are regrouped by behavior, in a fixed behavior order.
  *   Within a behavior, categories keep their original order (by category
  *   group, then by position in the group).
- * - Categories without a `#type` go to an "unassigned" group at the end.
+ * - A category uses its own behavior, or else its category group's behavior.
+ * - Categories with neither go to an "unassigned" group at the end.
  * - Categories in a hidden category group are treated as hidden.
  * - Behaviors with no categories are omitted.
  * - The income group is passed through unchanged, at the end.
  */
 export function buildBehaviorGroups(
   categoryGroups: readonly CategoryGroupEntity[],
-  behaviorsByCategoryId: ReadonlyMap<CategoryEntity['id'], CategoryBehavior>,
+  behaviorsById: ReadonlyMap<
+    CategoryEntity['id'] | CategoryGroupEntity['id'],
+    CategoryBehavior
+  >,
   labels: Record<BehaviorGroupKey, string>,
 ): CategoryGroupEntity[] {
   const buckets = new Map<BehaviorGroupKey, CategoryEntity[]>();
@@ -106,9 +112,11 @@ export function buildBehaviorGroups(
       continue;
     }
 
+    const groupBehavior = behaviorsById.get(group.id);
+
     for (const category of group.categories ?? []) {
       const key: BehaviorGroupKey =
-        behaviorsByCategoryId.get(category.id) ?? 'unassigned';
+        behaviorsById.get(category.id) ?? groupBehavior ?? 'unassigned';
       const bucket = buckets.get(key) ?? [];
       bucket.push(
         group.hidden && !category.hidden

@@ -118,6 +118,15 @@ Actual can show the budget grouped this way without changing your category group
 
 The `#type` line can sit next to other content in the note, including budget templates. Only the first valid `#type` line is used.
 
+### Setting a Behavior for a Whole Group
+
+If every category in a group behaves the same way, such as an Insurance or Utilities group, you can set the behavior once on the group instead:
+
+1. Open the notes for the category group. On desktop, click the paper icon next to the group name. On mobile, tap the group name and choose **Edit notes**.
+2. Add a `#type` line, for example `#type fixed`, and save the note.
+
+Do this while viewing your regular category groups, since behavior groups don't have notes of their own. Every category in that group now uses that behavior. To make an exception, add a different `#type` line to that category's own notes. A category's own `#type` always takes priority over its group's.
+
 ### Switching the View
 
 - On desktop, open the menu next to the category column header and choose **Group by behavior**. Choose **Group by category group** to switch back.
@@ -126,7 +135,7 @@ The `#type` line can sit next to other content in the note, including budget tem
 In the behavior view:
 
 - Each behavior is shown as a group, with totals for budgeted, spent, and balance.
-- Categories without a `#type` line appear under **No behavior set**.
+- Categories with no `#type` line, on the category or its group, appear under **No behavior set**.
 - Your income categories are shown as usual.
 - Categories can still be budgeted and edited, but categories and groups can't be dragged to a new position. Switch back to the category group view to reorder them.
 
