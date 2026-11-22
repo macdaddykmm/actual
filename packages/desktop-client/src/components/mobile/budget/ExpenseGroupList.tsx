@@ -44,10 +44,13 @@ export function ExpenseGroupList({
 }: ExpenseGroupListProps) {
   const { t } = useTranslation();
   const moveCategoryGroup = useMoveCategoryGroupMutation();
-  // Groups can't be reordered in the behavior view (virtual groups).
+  // Groups can't be reordered in the behavior view (virtual groups). Drag and
+  // drop is disabled rather than removed: GridList must always get the same
+  // dragAndDropHooks, or it calls a different number of hooks and crashes.
   const isBehaviorView = categoryGroups.some(isBehaviorGroup);
 
   const { dragAndDropHooks } = useDragAndDrop({
+    isDisabled: isBehaviorView,
     getItems: keys =>
       [...keys].map(
         key =>
@@ -150,7 +153,7 @@ export function ExpenseGroupList({
         isCollapsed,
         onToggleCollapse,
       ]}
-      dragAndDropHooks={isBehaviorView ? undefined : dragAndDropHooks}
+      dragAndDropHooks={dragAndDropHooks}
     >
       {categoryGroup => (
         <ExpenseGroupListItem

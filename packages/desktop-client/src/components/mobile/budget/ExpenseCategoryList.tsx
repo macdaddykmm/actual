@@ -65,7 +65,13 @@ export function ExpenseCategoryList({
     });
   };
 
+  // Categories can't be moved while viewing virtual behavior groups. Drag and
+  // drop is disabled rather than removed: GridList must always get the same
+  // dragAndDropHooks, or it calls a different number of hooks and crashes.
+  const canReorder = !isBehaviorGroup(categoryGroup);
+
   const { dragAndDropHooks } = useDragAndDrop({
+    isDisabled: !canReorder,
     acceptedDragTypes: [EXPENSE_CATEGORY_DRAG_TYPE],
     getItems: keys =>
       [...keys].map(key => ({ [EXPENSE_CATEGORY_DRAG_TYPE]: String(key) })),
@@ -98,16 +104,13 @@ export function ExpenseCategoryList({
     },
   });
 
-  // Categories can't be moved while viewing virtual behavior groups.
-  const canReorder = !isBehaviorGroup(categoryGroup);
-
   return (
     <GridList
       aria-label={t('{{categoryGroupName}} expense group categories', {
         categoryGroupName: categoryGroup.name,
       })}
       items={categories}
-      dragAndDropHooks={canReorder ? dragAndDropHooks : undefined}
+      dragAndDropHooks={dragAndDropHooks}
       dependencies={[
         month,
         onEditCategory,
