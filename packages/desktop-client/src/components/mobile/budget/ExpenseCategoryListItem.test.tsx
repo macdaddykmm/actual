@@ -6,6 +6,7 @@ import type { CategoryEntity } from '@actual-app/core/types/models';
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { SchedulesProvider } from '#hooks/useCachedSchedules';
 import { SheetNameProvider } from '#hooks/useSheetName';
 import {
   configureTestAppStore,
@@ -49,21 +50,23 @@ function renderItem() {
   render(
     <TestProviders queryClient={client} store={store}>
       <MemoryRouter>
-        <SheetNameProvider name="budget202401">
-          <GridList aria-label="Categories" items={[category]}>
-            {item => (
-              <ExpenseCategoryListItem
-                value={item}
-                month="2024-01"
-                isHidden={false}
-                show3Columns
-                showBudgetedColumn
-                onEditCategory={vi.fn()}
-                onBudgetAction={onBudgetAction}
-              />
-            )}
-          </GridList>
-        </SheetNameProvider>
+        <SchedulesProvider>
+          <SheetNameProvider name="budget202401">
+            <GridList aria-label="Categories" items={[category]}>
+              {item => (
+                <ExpenseCategoryListItem
+                  value={item}
+                  month="2024-01"
+                  isHidden={false}
+                  show3Columns
+                  showBudgetedColumn
+                  onEditCategory={vi.fn()}
+                  onBudgetAction={onBudgetAction}
+                />
+              )}
+            </GridList>
+          </SheetNameProvider>
+        </SchedulesProvider>
       </MemoryRouter>
     </TestProviders>,
   );

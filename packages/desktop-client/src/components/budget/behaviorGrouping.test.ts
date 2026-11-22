@@ -1,6 +1,5 @@
-import { describe, expect, it } from 'vitest';
-
 import type { CategoryGroupEntity } from '@actual-app/core/types/models';
+import { describe, expect, it } from 'vitest';
 
 import {
   behaviorGroupId,
@@ -65,9 +64,9 @@ describe('parseCategoryBehavior', () => {
     expect(parseCategoryBehavior('Car fund\n  #type irregular\n')).toBe(
       'irregular',
     );
-    expect(
-      parseCategoryBehavior('#template 300 up to 4000\n#type goal'),
-    ).toBe('goal');
+    expect(parseCategoryBehavior('#template 300 up to 4000\n#type goal')).toBe(
+      'goal',
+    );
   });
 
   it('is case-insensitive and supports aliases', () => {

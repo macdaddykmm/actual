@@ -127,10 +127,7 @@ export function buildBehaviorGroups(
     }
   }
 
-  const orderedKeys: BehaviorGroupKey[] = [
-    ...CATEGORY_BEHAVIORS,
-    'unassigned',
-  ];
+  const orderedKeys: BehaviorGroupKey[] = [...CATEGORY_BEHAVIORS, 'unassigned'];
 
   const behaviorGroups = orderedKeys.flatMap(key => {
     const categories = buckets.get(key);

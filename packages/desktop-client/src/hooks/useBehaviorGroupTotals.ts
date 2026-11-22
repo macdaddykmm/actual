@@ -18,9 +18,7 @@ export function useBehaviorGroupTotals(group: CategoryGroupEntity) {
 
   const categoryIds = (group.categories ?? []).map(category => category.id);
 
-  const budgeted = useSheetSum(
-    categoryIds.map(id => bindings.catBudgeted(id)),
-  );
+  const budgeted = useSheetSum(categoryIds.map(id => bindings.catBudgeted(id)));
   const spent = useSheetSum(categoryIds.map(id => bindings.catSumAmount(id)));
   const balance = useSheetSum(categoryIds.map(id => bindings.catBalance(id)));
 
