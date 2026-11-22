@@ -140,3 +140,27 @@ In the behavior view:
 - Categories can still be budgeted and edited, but categories and groups can't be dragged to a new position. Switch back to the category group view to reorder them.
 
 The view you choose is remembered on each device, so one person can use the behavior view while another keeps the regular view.
+
+## Viewing Scheduled Payees
+
+If a category is funded by [schedule templates](../experimental/goal-templates.md), such as `#template schedule Hulu`, you can see the payees behind it right on the budget page. This is handy for categories made up of a few known bills, like subscriptions or insurance.
+
+For each scheduled payee, the list shows:
+
+- The payee
+- The next date the schedule is due
+- The scheduled amount (a `~` means the amount is approximate or a range)
+- On desktop, the schedule's name and status, such as upcoming, due, or missed
+
+To show the list:
+
+- On desktop, click the small arrow to the left of the category name.
+- On mobile, tap **scheduled payees** under the category name.
+
+Click or tap again to hide it. Which lists are open is remembered on each device.
+
+:::note
+
+This needs [budget templates](../experimental/goal-templates.md) to be turned on. A category's scheduled payees appear after its templates have been checked or applied at least once.
+
+:::

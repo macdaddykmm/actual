@@ -4,7 +4,10 @@ import { GridListItem } from 'react-aria-components';
 import { useTranslation } from 'react-i18next';
 
 import { Button } from '@actual-app/components/button';
-import { SvgCheveronRight } from '@actual-app/components/icons/v1';
+import {
+  SvgCheveronDown,
+  SvgCheveronRight,
+} from '@actual-app/components/icons/v1';
 import { styles } from '@actual-app/components/styles';
 import type { CSSProperties } from '@actual-app/components/styles';
 import { Text } from '@actual-app/components/text';
@@ -15,7 +18,10 @@ import * as monthUtils from '@actual-app/core/shared/months';
 import type { IntegerAmount } from '@actual-app/core/shared/util';
 import type { CategoryEntity } from '@actual-app/core/types/models';
 
+import { ScheduledPayeesList } from '#components/budget/ScheduledPayeesList';
 import { useCategoriesById } from '#hooks/useCategories';
+import { useCategoryScheduleGoalTemplates } from '#hooks/useCategoryScheduleGoalTemplates';
+import { useExpandedScheduledPayees } from '#hooks/useExpandedScheduledPayees';
 import { useFormat } from '#hooks/useFormat';
 import { useNavigate } from '#hooks/useNavigate';
 import { useSheetValue } from '#hooks/useSheetValue';
@@ -34,13 +40,21 @@ type ExpenseCategoryNameProps = {
   category: CategoryEntity;
   onEditCategory: (id: CategoryEntity['id']) => void;
   show3Columns: boolean;
+  scheduledPayeeCount: number;
+  isScheduledPayeesExpanded: boolean;
+  onToggleScheduledPayees: () => void;
 };
 
 function ExpenseCategoryName({
   category,
   onEditCategory,
   show3Columns,
+  scheduledPayeeCount,
+  isScheduledPayeesExpanded,
+  onToggleScheduledPayees,
 }: ExpenseCategoryNameProps) {
+  const { t } = useTranslation();
+  const hasScheduledPayees = scheduledPayeeCount > 0;
   const sidebarColumnWidth = getColumnWidth({
     show3Columns,
     isSidebar: true,
@@ -81,7 +95,8 @@ function ExpenseCategoryName({
         >
           <Text
             style={{
-              ...styles.lineClamp(2),
+              // Leave room for the scheduled payees toggle below the name.
+              ...styles.lineClamp(hasScheduledPayees ? 1 : 2),
               width: sidebarColumnWidth,
               textAlign: 'left',
               ...styles.smallText,
@@ -97,6 +112,25 @@ function ExpenseCategoryName({
           />
         </View>
       </Button>
+      {hasScheduledPayees && (
+        <Button
+          variant="bare"
+          aria-expanded={isScheduledPayeesExpanded}
+          style={{
+            padding: '1px 0',
+            color: theme.pageTextSubdued,
+            fontSize: 11,
+          }}
+          onPress={onToggleScheduledPayees}
+        >
+          {isScheduledPayeesExpanded ? (
+            <SvgCheveronDown width={9} height={9} style={{ marginRight: 3 }} />
+          ) : (
+            <SvgCheveronRight width={9} height={9} style={{ marginRight: 3 }} />
+          )}
+          {t('{{count}} scheduled payees', { count: scheduledPayeeCount })}
+        </Button>
+      )}
     </View>
   );
 }
@@ -229,6 +263,12 @@ export function ExpenseCategoryListItem({
   const { t } = useTranslation();
   const [budgetType = 'envelope'] = useSyncedPref('budgetType');
   const format = useFormat();
+
+  // Payees from the category's `#template schedule ...` lines.
+  const { schedules: scheduledPayees, statuses: scheduleStatuses } =
+    useCategoryScheduleGoalTemplates({ category });
+  const { isExpanded: isScheduledPayeesExpanded, toggleExpanded } =
+    useExpandedScheduledPayees(category?.id ?? '');
 
   const balanceMenuModalName =
     `${budgetType as BudgetType}-balance-menu` as const;
@@ -473,6 +513,9 @@ export function ExpenseCategoryListItem({
           category={category}
           onEditCategory={onEditCategory}
           show3Columns={show3Columns}
+          scheduledPayeeCount={scheduledPayees.length}
+          isScheduledPayeesExpanded={isScheduledPayeesExpanded}
+          onToggleScheduledPayees={toggleExpanded}
         />
         <ExpenseCategoryCells
           key={`${category.id}-${show3Columns}-${showBudgetedColumn}`}
@@ -485,6 +528,14 @@ export function ExpenseCategoryListItem({
           onShowActivity={onShowActivity}
         />
       </View>
+      {isScheduledPayeesExpanded && scheduledPayees.length > 0 && (
+        <ScheduledPayeesList
+          schedules={scheduledPayees}
+          statuses={scheduleStatuses}
+          compact
+          indent={10}
+        />
+      )}
     </GridListItem>
   );
 }

@@ -16,10 +16,13 @@ import type {
   OnDropCallback,
 } from '#components/sort';
 import { Row } from '#components/table';
+import { useCategoryScheduleGoalTemplates } from '#hooks/useCategoryScheduleGoalTemplates';
 import { useDragRef } from '#hooks/useDragRef';
+import { useExpandedScheduledPayees } from '#hooks/useExpandedScheduledPayees';
 
 import { isBehaviorGroup } from './behaviorGrouping';
 import { RenderMonths } from './RenderMonths';
+import { ScheduledPayeesList } from './ScheduledPayeesList';
 import { SidebarCategory } from './SidebarCategory';
 
 import { useBudgetComponents } from '.';
@@ -77,51 +80,71 @@ export function ExpenseCategory({
 
   const { ExpenseCategoryComponent: MonthComponent } = useBudgetComponents();
 
+  // Payees from the category's `#template schedule ...` lines.
+  const { schedules: scheduledPayees, statuses: scheduleStatuses } =
+    useCategoryScheduleGoalTemplates({ category: cat });
+  const { isExpanded: isScheduledPayeesExpanded, toggleExpanded } =
+    useExpandedScheduledPayees(cat.id);
+  const showScheduledPayees =
+    isScheduledPayeesExpanded && scheduledPayees.length > 0;
+
   return (
-    <Row
-      innerRef={dropRef}
-      collapsed
-      style={{
-        backgroundColor: theme.budgetCurrentMonth,
-        opacity: cat.hidden || categoryGroup?.hidden ? 0.5 : undefined,
-      }}
-    >
-      <DropHighlight pos={dropPos} offset={{ top: 1 }} />
+    <View>
+      <Row
+        innerRef={dropRef}
+        collapsed
+        style={{
+          backgroundColor: theme.budgetCurrentMonth,
+          opacity: cat.hidden || categoryGroup?.hidden ? 0.5 : undefined,
+        }}
+      >
+        <DropHighlight pos={dropPos} offset={{ top: 1 }} />
 
-      <View style={{ flex: 1, flexDirection: 'row' }}>
-        <SidebarCategory
-          innerRef={handleDragRef}
-          category={cat}
-          categoryGroup={categoryGroup}
-          dragPreview={dragging && dragState.preview}
-          dragging={dragging && !dragState.preview}
-          editing={
-            editingCell &&
-            editingCell.cell === 'name' &&
-            editingCell.id === cat.id
-          }
-          onEditName={onEditName}
-          onSave={onSave}
-          onDelete={onDelete}
+        <View style={{ flex: 1, flexDirection: 'row' }}>
+          <SidebarCategory
+            innerRef={handleDragRef}
+            category={cat}
+            categoryGroup={categoryGroup}
+            dragPreview={dragging && dragState.preview}
+            dragging={dragging && !dragState.preview}
+            editing={
+              editingCell &&
+              editingCell.cell === 'name' &&
+              editingCell.id === cat.id
+            }
+            onEditName={onEditName}
+            onSave={onSave}
+            onDelete={onDelete}
+            scheduledPayeeCount={scheduledPayees.length}
+            isScheduledPayeesExpanded={isScheduledPayeesExpanded}
+            onToggleScheduledPayees={toggleExpanded}
+          />
+
+          <RenderMonths>
+            {({ month }) => (
+              <MonthComponent
+                month={month}
+                editing={
+                  editingCell &&
+                  editingCell.id === cat.id &&
+                  editingCell.cell === month
+                }
+                category={cat}
+                onEdit={onEditMonth}
+                onBudgetAction={onBudgetAction}
+                onShowActivity={onShowActivity}
+              />
+            )}
+          </RenderMonths>
+        </View>
+      </Row>
+      {showScheduledPayees && (
+        <ScheduledPayeesList
+          schedules={scheduledPayees}
+          statuses={scheduleStatuses}
+          indent={34}
         />
-
-        <RenderMonths>
-          {({ month }) => (
-            <MonthComponent
-              month={month}
-              editing={
-                editingCell &&
-                editingCell.id === cat.id &&
-                editingCell.cell === month
-              }
-              category={cat}
-              onEdit={onEditMonth}
-              onBudgetAction={onBudgetAction}
-              onShowActivity={onShowActivity}
-            />
-          )}
-        </RenderMonths>
-      </View>
-    </Row>
+      )}
+    </View>
   );
 }

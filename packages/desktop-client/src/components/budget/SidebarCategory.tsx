@@ -4,7 +4,10 @@ import type { CSSProperties, Ref } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Button } from '@actual-app/components/button';
-import { SvgCheveronDown } from '@actual-app/components/icons/v1';
+import {
+  SvgCheveronDown,
+  SvgCheveronRight,
+} from '@actual-app/components/icons/v1';
 import { TextOneLine } from '@actual-app/components/text-one-line';
 import { theme } from '@actual-app/components/theme';
 import { View } from '@actual-app/components/view';
@@ -32,6 +35,10 @@ type SidebarCategoryProps = {
   onEditName: (id: CategoryEntity['id']) => void;
   onSave: (category: CategoryEntity) => void;
   onHideNewCategory?: () => void;
+  /** Number of scheduled payees in the category's templates. */
+  scheduledPayeeCount?: number;
+  isScheduledPayeesExpanded?: boolean;
+  onToggleScheduledPayees?: () => void;
 } & (
   | {
       editing: true;
@@ -57,6 +64,9 @@ export function SidebarCategory({
   onSave,
   onDelete,
   onHideNewCategory,
+  scheduledPayeeCount = 0,
+  isScheduledPayeesExpanded = false,
+  onToggleScheduledPayees,
 }: SidebarCategoryProps) {
   const { t } = useTranslation();
   const [categoryExpandedStatePref] = useGlobalPref('categoryExpandedState');
@@ -98,6 +108,25 @@ export function SidebarCategory({
       }}
       ref={triggerRef}
     >
+      {scheduledPayeeCount > 0 && onToggleScheduledPayees && (
+        <Button
+          variant="bare"
+          aria-label={
+            isScheduledPayeesExpanded
+              ? t('Hide scheduled payees')
+              : t('Show scheduled payees')
+          }
+          aria-expanded={isScheduledPayeesExpanded}
+          style={{ color: theme.pageTextSubdued, padding: 2, marginRight: 2 }}
+          onPress={onToggleScheduledPayees}
+        >
+          {isScheduledPayeesExpanded ? (
+            <SvgCheveronDown width={10} height={10} />
+          ) : (
+            <SvgCheveronRight width={10} height={10} />
+          )}
+        </Button>
+      )}
       <TextOneLine data-testid="category-name">{category.name}</TextOneLine>
       <View style={{ flexShrink: 0, marginLeft: 5 }}>
         <Button
