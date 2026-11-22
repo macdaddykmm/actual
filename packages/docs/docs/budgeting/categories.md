@@ -94,3 +94,40 @@ Once a Category has been given a note it is possible to view it in one of two wa
 2. Click the paper icon. This will open the edit box where you can see the note content and also edit the note, should you wish.
 
    <img width="724" alt="The note edit box showing the Markdown text of the note" src="/img/budgeting/categories-note-edit@2x.webp" />
+
+## Grouping Categories by Behavior
+
+Your category groups usually follow topics, such as Food, Kids, or Transportation. Sometimes it helps to see your budget grouped by how the money behaves instead: bills that are the same every month, everyday spending that changes from week to week, or costs that only come up a few times a year.
+
+Actual can show the budget grouped this way without changing your category groups. You choose a behavior for each category by adding a line to its [notes](#category-notes).
+
+### Setting a Category's Behavior
+
+1. Open the notes for a category, as described in [Category Notes](#category-notes).
+2. On its own line, add `#type` followed by one of the behaviors below. For example: `#type irregular`.
+3. Save the note.
+
+| Behavior    | Use it for                                            | Also accepted         |
+| ----------- | ----------------------------------------------------- | --------------------- |
+| `fixed`     | Bills with the same amount every month                | `bill`, `bills`       |
+| `debt`      | Loan and credit card payments                         | `debts`               |
+| `variable`  | Everyday spending that changes, like groceries or gas | `everyday`            |
+| `irregular` | Seasonal or occasional costs you save up for          | `seasonal`, `sinking` |
+| `goal`      | Savings goals and emergency funds                     | `goals`, `savings`    |
+| `fun`       | Personal spending money and entertainment             | `personal`            |
+
+The `#type` line can sit next to other content in the note, including budget templates. Only the first valid `#type` line is used.
+
+### Switching the View
+
+- On desktop, open the menu next to the category column header and choose **Group by behavior**. Choose **Group by category group** to switch back.
+- On mobile, tap the Actual logo at the top left of the budget page and choose **Group by behavior** or **Group by category group**.
+
+In the behavior view:
+
+- Each behavior is shown as a group, with totals for budgeted, spent, and balance.
+- Categories without a `#type` line appear under **No behavior set**.
+- Your income categories are shown as usual.
+- Categories can still be budgeted and edited, but categories and groups can't be dragged to a new position. Switch back to the category group view to reorder them.
+
+The view you choose is remembered on each device, so one person can use the behavior view while another keeps the regular view.

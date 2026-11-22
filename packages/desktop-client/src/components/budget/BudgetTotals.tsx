@@ -14,6 +14,7 @@ import { styles } from '@actual-app/components/styles';
 import { theme } from '@actual-app/components/theme';
 import { View } from '@actual-app/components/view';
 
+import { useBudgetGroupByPref } from '#hooks/useBehaviorGrouping';
 import { useGlobalPref } from '#hooks/useGlobalPref';
 
 import { RenderMonths } from './RenderMonths';
@@ -37,6 +38,7 @@ export const BudgetTotals = memo(function BudgetTotals({
     useGlobalPref('categoryExpandedState');
   const categoryExpandedState = categoryExpandedStatePref ?? 0;
   const [menuOpen, setMenuOpen] = useState(false);
+  const { isBehaviorView, toggleGroupBy } = useBudgetGroupByPref();
   const triggerRef = useRef(null);
 
   const cycleExpandedState = () => {
@@ -159,6 +161,8 @@ export const BudgetTotals = memo(function BudgetTotals({
                 expandAllCategories();
               } else if (type === 'collapseAllCategories') {
                 collapseAllCategories();
+              } else if (type === 'toggle-group-by') {
+                toggleGroupBy();
               }
               setMenuOpen(false);
             }}
@@ -174,6 +178,13 @@ export const BudgetTotals = memo(function BudgetTotals({
               {
                 name: 'collapseAllCategories',
                 text: t('Collapse all'),
+              },
+              Menu.line,
+              {
+                name: 'toggle-group-by',
+                text: isBehaviorView
+                  ? t('Group by category group')
+                  : t('Group by behavior'),
               },
             ]}
           />

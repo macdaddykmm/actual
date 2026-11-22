@@ -23,6 +23,7 @@ import { MOBILE_NAV_HEIGHT } from '#components/mobile/MobileNavTabs';
 import { PullToRefresh } from '#components/mobile/PullToRefresh';
 import { PrivacyFilter } from '#components/PrivacyFilter';
 import { CellValue } from '#components/spreadsheet/CellValue';
+import { useBehaviorGrouping } from '#hooks/useBehaviorGrouping';
 import { SchedulesProvider } from '#hooks/useCachedSchedules';
 import { useFormat } from '#hooks/useFormat';
 import { useLocalPref } from '#hooks/useLocalPref';
@@ -261,15 +262,17 @@ function BudgetGroups({
   show3Columns,
   showHiddenCategories,
 }: BudgetGroupsProps) {
+  const { displayGroups } = useBehaviorGrouping(categoryGroups);
+
   const { incomeGroup, expenseGroups } = useMemo(() => {
-    const categoryGroupsToDisplay = categoryGroups.filter(
+    const categoryGroupsToDisplay = displayGroups.filter(
       group => !group.hidden || showHiddenCategories,
     );
     return {
       incomeGroup: categoryGroupsToDisplay.find(group => group.is_income),
       expenseGroups: categoryGroupsToDisplay.filter(group => !group.is_income),
     };
-  }, [categoryGroups, showHiddenCategories]);
+  }, [displayGroups, showHiddenCategories]);
 
   const [collapsedGroupIds = [], setCollapsedGroupIdsPref] =
     useLocalPref('budget.collapsed');

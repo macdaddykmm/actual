@@ -15,6 +15,7 @@ import type {
 import { css } from '@emotion/css';
 
 import { useReorderCategoryMutation } from '#budget';
+import { isBehaviorGroup } from '#components/budget/behaviorGrouping';
 import { findSortDown } from '#components/budget/util';
 
 import { ExpenseCategoryListItem } from './ExpenseCategoryListItem';
@@ -97,13 +98,16 @@ export function ExpenseCategoryList({
     },
   });
 
+  // Categories can't be moved while viewing virtual behavior groups.
+  const canReorder = !isBehaviorGroup(categoryGroup);
+
   return (
     <GridList
       aria-label={t('{{categoryGroupName}} expense group categories', {
         categoryGroupName: categoryGroup.name,
       })}
       items={categories}
-      dragAndDropHooks={dragAndDropHooks}
+      dragAndDropHooks={canReorder ? dragAndDropHooks : undefined}
       dependencies={[
         month,
         onEditCategory,

@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 
 import { MobileSheet } from '#components/mobile/MobileSheet';
 import { MobileSheetRow } from '#components/mobile/MobileSheetRow';
+import { useBudgetGroupByPref } from '#hooks/useBehaviorGrouping';
 import { useLocalPref } from '#hooks/useLocalPref';
 import type { Modal as ModalType } from '#modals/modalsSlice';
 
@@ -17,6 +18,7 @@ export function BudgetPageMenuModal({
 }: BudgetPageMenuModalProps) {
   const { t } = useTranslation();
   const [showHiddenCategories] = useLocalPref('budget.showHiddenCategories');
+  const { isBehaviorView, toggleGroupBy } = useBudgetGroupByPref();
 
   return (
     <MobileSheet name="budget-page-menu" title={t('Budget')}>
@@ -33,6 +35,17 @@ export function BudgetPageMenuModal({
                 : t('Show hidden categories')
             }
             onPress={onToggleHiddenCategories}
+          />
+          <MobileSheetRow
+            label={
+              isBehaviorView
+                ? t('Group by category group')
+                : t('Group by behavior')
+            }
+            onPress={() => {
+              close();
+              toggleGroupBy();
+            }}
           />
           <MobileSheetRow
             label={t('Switch budget file')}

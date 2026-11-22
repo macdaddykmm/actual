@@ -18,6 +18,8 @@ import type {
 import { Row, ROW_HEIGHT } from '#components/table';
 import { useDragRef } from '#hooks/useDragRef';
 
+import { isBehaviorGroup } from './behaviorGrouping';
+import { BehaviorGroupMonth } from './BehaviorGroupMonth';
 import { RenderMonths } from './RenderMonths';
 import { SidebarGroup } from './SidebarGroup';
 
@@ -61,12 +63,15 @@ export function ExpenseGroup({
   onShowNewCategory,
 }: ExpenseGroupProps) {
   const dragging = dragState && dragState.item === group;
+  // Virtual behavior groups are a display-only view: they can't be dragged,
+  // renamed, deleted, sorted or receive categories.
+  const isVirtual = isBehaviorGroup(group);
 
   const { dragRef } = useDraggable({
     type: 'group',
     onDragChange,
     item: group,
-    canDrag: editingCell === null,
+    canDrag: editingCell === null && !isVirtual,
   });
   const handleDragRef = useDragRef(dragRef);
 
@@ -136,15 +141,21 @@ export function ExpenseGroup({
           dragPreview={dragging && dragState.preview}
           collapsed={collapsed}
           onToggleCollapse={onToggleCollapse}
-          onEdit={onEditName}
-          onSave={onSave}
-          onDelete={onDelete}
+          onEdit={isVirtual ? undefined : onEditName}
+          onSave={isVirtual ? undefined : onSave}
+          onDelete={isVirtual ? undefined : onDelete}
           onApplyBudgetTemplatesInGroup={onApplyBudgetTemplatesInGroup}
-          onSortCategories={onSortCategories}
-          onShowNewCategory={onShowNewCategory}
+          onSortCategories={isVirtual ? undefined : onSortCategories}
+          onShowNewCategory={isVirtual ? undefined : onShowNewCategory}
         />
         <RenderMonths>
-          {({ month }) => <MonthComponent month={month} group={group} />}
+          {({ month }) =>
+            isVirtual ? (
+              <BehaviorGroupMonth month={month} group={group} />
+            ) : (
+              <MonthComponent month={month} group={group} />
+            )
+          }
         </RenderMonths>
       </View>
     </Row>

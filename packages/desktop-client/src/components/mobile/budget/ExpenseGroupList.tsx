@@ -10,6 +10,7 @@ import type {
 import { css } from '@emotion/css';
 
 import { useMoveCategoryGroupMutation } from '#budget';
+import { isBehaviorGroup } from '#components/budget/behaviorGrouping';
 
 import {
   ExpenseGroupHeader,
@@ -43,6 +44,8 @@ export function ExpenseGroupList({
 }: ExpenseGroupListProps) {
   const { t } = useTranslation();
   const moveCategoryGroup = useMoveCategoryGroupMutation();
+  // Groups can't be reordered in the behavior view (virtual groups).
+  const isBehaviorView = categoryGroups.some(isBehaviorGroup);
 
   const { dragAndDropHooks } = useDragAndDrop({
     getItems: keys =>
@@ -147,7 +150,7 @@ export function ExpenseGroupList({
         isCollapsed,
         onToggleCollapse,
       ]}
-      dragAndDropHooks={dragAndDropHooks}
+      dragAndDropHooks={isBehaviorView ? undefined : dragAndDropHooks}
     >
       {categoryGroup => (
         <ExpenseGroupListItem

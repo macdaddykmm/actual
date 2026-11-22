@@ -27,6 +27,14 @@ export function SheetNameProvider({ children, name }: SheetNameProviderProps) {
   );
 }
 
+/**
+ * Returns the sheet name from the nearest SheetNameProvider (for example the
+ * budget month), or the global sheet name if there is none.
+ */
+export function useCurrentSheetName(): string {
+  return useContext(SheetNameContext) || '__global';
+}
+
 export function useSheetName<
   SheetName extends SheetNames,
   FieldName extends SheetFields<SheetName>,

@@ -19,8 +19,10 @@ import type {
 import { css } from '@emotion/css';
 import { AutoTextSize } from 'auto-text-size';
 
+import { isBehaviorGroup } from '#components/budget/behaviorGrouping';
 import { PrivacyFilter } from '#components/PrivacyFilter';
 import { CellValue } from '#components/spreadsheet/CellValue';
+import { useBehaviorGroupTotals } from '#hooks/useBehaviorGroupTotals';
 import { useFormat } from '#hooks/useFormat';
 import { useSyncedPref } from '#hooks/useSyncedPref';
 import { envelopeBudget, trackingBudget } from '#spreadsheet/bindings';
@@ -160,11 +162,19 @@ export function ExpenseGroupHeader({
         onToggleCollapse={onToggleCollapse}
         show3Columns={show3Columns}
       />
-      <ExpenseGroupCells
-        group={categoryGroup}
-        show3Columns={show3Columns}
-        showBudgetedColumn={showBudgetedColumn}
-      />
+      {isBehaviorGroup(categoryGroup) ? (
+        <BehaviorGroupCells
+          group={categoryGroup}
+          show3Columns={show3Columns}
+          showBudgetedColumn={showBudgetedColumn}
+        />
+      ) : (
+        <ExpenseGroupCells
+          group={categoryGroup}
+          show3Columns={show3Columns}
+          showBudgetedColumn={showBudgetedColumn}
+        />
+      )}
     </View>
   );
 }
@@ -189,6 +199,7 @@ function ExpenseGroupName({
     isSidebar: true,
     offset: -3.5,
   });
+  const isVirtual = isBehaviorGroup(group);
   return (
     <View
       style={{
@@ -236,7 +247,10 @@ function ExpenseGroupName({
         style={{
           maxWidth: sidebarColumnWidth,
         }}
-        onPress={() => onEditCategoryGroup(group.id)}
+        onPress={() =>
+          // Virtual behavior groups have no group menu; just expand/collapse.
+          isVirtual ? onToggleCollapse(group.id) : onEditCategoryGroup(group.id)
+        }
       >
         <View
           style={{
@@ -257,11 +271,13 @@ function ExpenseGroupName({
           >
             {group.name}
           </Text>
-          <SvgCheveronRight
-            style={{ flexShrink: 0, color: theme.tableTextSubdued }}
-            width={14}
-            height={14}
-          />
+          {!isVirtual && (
+            <SvgCheveronRight
+              style={{ flexShrink: 0, color: theme.tableTextSubdued }}
+              width={14}
+              height={14}
+            />
+          )}
         </View>
       </Button>
     </View>
@@ -392,6 +408,79 @@ function ExpenseGroupCells({
           </View>
         )}
       </CellValue>
+    </View>
+  );
+}
+
+type BehaviorGroupCellsProps = ExpenseGroupCellsProps;
+
+/**
+ * Totals for a virtual behavior group. These groups have no spreadsheet cells
+ * of their own, so the values are summed from their categories.
+ */
+function BehaviorGroupCells({
+  group,
+  show3Columns,
+  showBudgetedColumn,
+}: BehaviorGroupCellsProps) {
+  const format = useFormat();
+  const { budgeted, spent, balance } = useBehaviorGroupTotals(group);
+
+  const columnWidth = getColumnWidth({ show3Columns });
+
+  const amountStyle: CSSProperties = {
+    ...styles.tnum,
+    width: columnWidth,
+    fontSize: 12,
+    fontWeight: '500',
+    paddingLeft: 5,
+    textAlign: 'right',
+  };
+
+  function renderAmount(value: number | null) {
+    const text = value == null ? '' : format(value, 'financial');
+    return (
+      <View>
+        <PrivacyFilter>
+          <AutoTextSize
+            key={text}
+            as={Text}
+            minFontSizePx={6}
+            maxFontSizePx={12}
+            mode="oneline"
+            style={amountStyle}
+          >
+            {text}
+          </AutoTextSize>
+        </PrivacyFilter>
+      </View>
+    );
+  }
+
+  return (
+    <View
+      style={{
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+        alignItems: 'center',
+        paddingRight: 5,
+      }}
+    >
+      <View
+        style={{
+          ...(!show3Columns && !showBudgetedColumn && { display: 'none' }),
+        }}
+      >
+        {renderAmount(budgeted)}
+      </View>
+      <View
+        style={{
+          ...(!show3Columns && showBudgetedColumn && { display: 'none' }),
+        }}
+      >
+        {renderAmount(spent)}
+      </View>
+      {renderAmount(balance)}
     </View>
   );
 }

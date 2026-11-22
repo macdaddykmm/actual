@@ -23,6 +23,8 @@ import { useContextMenu } from '#hooks/useContextMenu';
 import { useFeatureFlag } from '#hooks/useFeatureFlag';
 import { useGlobalPref } from '#hooks/useGlobalPref';
 
+import { isBehaviorGroup } from './behaviorGrouping';
+
 type SidebarGroupProps = {
   group: CategoryGroupEntity;
   editing?: boolean;
@@ -67,6 +69,7 @@ export function SidebarGroup({
   const categoryExpandedState = categoryExpandedStatePref ?? 0;
 
   const temporary = group.id === 'new';
+  const isVirtual = isBehaviorGroup(group);
   const canSortCategories =
     !!onSortCategories && (group.categories?.length ?? 0) > 1;
   const triggerRef = useRef(null);
@@ -163,33 +166,35 @@ export function SidebarGroup({
             </Button>
           </View>
           <View style={{ flex: 1 }} />
-          <View
-            style={{
-              flexShrink: 0,
-              flexDirection: 'row',
-              alignItems: 'center',
-            }}
-          >
-            <Tooltip content={t('Add category')} disablePointerEvents>
-              <Button
-                variant="bare"
-                aria-label={t('Add category')}
-                className={cx(
-                  css({
-                    color: theme.pageTextLight,
-                  }),
-                  'hover-visible',
-                )}
-                onPress={() => {
-                  onShowNewCategory?.(group.id);
-                }}
-              >
-                <SvgAdd style={{ width: 10, height: 10, flexShrink: 0 }} />
-              </Button>
-            </Tooltip>
+          {!isVirtual && (
+            <View
+              style={{
+                flexShrink: 0,
+                flexDirection: 'row',
+                alignItems: 'center',
+              }}
+            >
+              <Tooltip content={t('Add category')} disablePointerEvents>
+                <Button
+                  variant="bare"
+                  aria-label={t('Add category')}
+                  className={cx(
+                    css({
+                      color: theme.pageTextLight,
+                    }),
+                    'hover-visible',
+                  )}
+                  onPress={() => {
+                    onShowNewCategory?.(group.id);
+                  }}
+                >
+                  <SvgAdd style={{ width: 10, height: 10, flexShrink: 0 }} />
+                </Button>
+              </Tooltip>
 
-            <NotesButton id={group.id} defaultColor={theme.pageTextLight} />
-          </View>
+              <NotesButton id={group.id} defaultColor={theme.pageTextLight} />
+            </View>
+          )}
         </>
       )}
     </View>

@@ -18,6 +18,7 @@ import type {
 import { Row } from '#components/table';
 import { useDragRef } from '#hooks/useDragRef';
 
+import { isBehaviorGroup } from './behaviorGrouping';
 import { RenderMonths } from './RenderMonths';
 import { SidebarCategory } from './SidebarCategory';
 
@@ -62,7 +63,9 @@ export function ExpenseCategory({
     type: 'category',
     onDragChange,
     item: cat,
-    canDrag: editingCell === null,
+    // Reordering isn't supported in the behavior view, where categories are
+    // shown outside their real category group.
+    canDrag: editingCell === null && !isBehaviorGroup(categoryGroup),
   });
   const handleDragRef = useDragRef(dragRef);
 

@@ -11,6 +11,7 @@ import type {
 } from '@actual-app/core/types/models';
 
 import type { DropPosition } from '#components/sort';
+import { useBehaviorGrouping } from '#hooks/useBehaviorGrouping';
 import { SchedulesProvider } from '#hooks/useCachedSchedules';
 import { useCategories } from '#hooks/useCategories';
 import { useGlobalPref } from '#hooks/useGlobalPref';
@@ -79,6 +80,9 @@ export function BudgetTable(props: BudgetTableProps) {
 
   const { data: { grouped: categoryGroups } = { grouped: [] } } =
     useCategories();
+  // In behavior view, `displayGroups` are virtual groups built from category
+  // notes. Reordering always works on the real `categoryGroups`.
+  const { displayGroups, isBehaviorView } = useBehaviorGrouping(categoryGroups);
   const [collapsedGroupIds = [], setCollapsedGroupIdsPref] =
     useLocalPref('budget.collapsed');
   const [showHiddenCategories, setShowHiddenCategoriesPef] = useLocalPref(
@@ -115,6 +119,10 @@ export function BudgetTable(props: BudgetTableProps) {
     dropPos: DropPosition | null,
     targetId: string,
   ) => {
+    if (isBehaviorView) {
+      return;
+    }
+
     const isGroup = !!categoryGroups.find(g => g.id === targetId);
 
     if (isGroup) {
@@ -156,6 +164,10 @@ export function BudgetTable(props: BudgetTableProps) {
     dropPos: DropPosition | null,
     targetId: string,
   ) => {
+    if (isBehaviorView) {
+      return;
+    }
+
     const [expenseGroups] = separateGroups(categoryGroups); // exclude Income group from sortable groups to fix off-by-one error
     onReorderGroup({
       id,
@@ -164,7 +176,7 @@ export function BudgetTable(props: BudgetTableProps) {
   };
 
   const moveVertically = (dir: 1 | -1) => {
-    const flattened = categoryGroups.reduce(
+    const flattened = displayGroups.reduce(
       (all, group) => {
         if (collapsedGroupIds.includes(group.id)) {
           return all.concat({ id: group.id, isGroup: true });
@@ -230,7 +242,7 @@ export function BudgetTable(props: BudgetTableProps) {
   };
 
   const collapseAllCategories = () => {
-    onCollapse(categoryGroups.map(g => g.id));
+    onCollapse(displayGroups.map(g => g.id));
   };
 
   const _onShowActivity = (id: string, month?: string) => {
@@ -314,7 +326,7 @@ export function BudgetTable(props: BudgetTableProps) {
           >
             <SchedulesProvider query={schedulesQuery}>
               <BudgetCategories
-                categoryGroups={categoryGroups}
+                categoryGroups={displayGroups}
                 editingCell={editing}
                 onEditMonth={onEditMonth}
                 onEditName={onEditName}

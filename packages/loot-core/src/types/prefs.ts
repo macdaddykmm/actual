@@ -102,6 +102,7 @@ export type LocalPrefs = Partial<{
   'budget.collapsed': string[];
   'budget.summaryCollapsed': boolean;
   'budget.showHiddenCategories': boolean;
+  'budget.groupBy': 'categoryGroup' | 'behavior';
   'budget.startMonth': string;
   'flags.updateNotificationShownForVersion': string;
   'tour.introSeen': boolean;
